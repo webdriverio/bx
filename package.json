@@ -1,6 +1,6 @@
 {
-  "name": "bx",
-  "version": "0.0.0",
+  "name": "exweb",
+  "version": "0.0.1",
   "description": "Command line tool to run JavaScript, TypeScript or HTML files in the browser.",
   "exports": "./dist/index.js",
   "type": "module",
