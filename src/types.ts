@@ -1,3 +1,4 @@
+import type { ViteDevServer } from 'vite'
 
 export interface RunnerArgs {
     browserName: string
@@ -7,7 +8,8 @@ export interface RunnerArgs {
 
 export interface ExecutionEnvironment {
     url: string
-    connectPromise: Promise<unknown>
+    connectPromise: Promise<ViteDevServer>
+    server: ViteDevServer
 }
 
 export interface ConsoleEvent {

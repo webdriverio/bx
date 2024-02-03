@@ -24,8 +24,8 @@ export class ViteServer {
     }
 
     async start (filename: string): Promise<ExecutionEnvironment> {
-        let onConnectHandler: (value: unknown) => void = () => {}
-        const connectPromise = new Promise((resolve) => {
+        let onConnectHandler: (value: ViteDevServer) => void = () => {}
+        const connectPromise = new Promise<ViteDevServer>((resolve) => {
             onConnectHandler = resolve
         })
 
@@ -36,7 +36,8 @@ export class ViteServer {
         await this.#server.listen()
         return {
             url: `http://localhost:${this.#server.config.server.port}`,
-            connectPromise
+            connectPromise,
+            server: this.#server
         }
     }
 
@@ -45,7 +46,7 @@ export class ViteServer {
     }
 }
 
-function instrument (filename: string, onConnect: (value: unknown) => void): Plugin {
+function instrument (filename: string, onConnect: (value: ViteDevServer) => void): Plugin {
     const instrumentation = path.resolve(__dirname, 'browser', 'index.js')
 
     return {
@@ -76,9 +77,6 @@ function instrument (filename: string, onConnect: (value: unknown) => void): Plu
                 if (message.name === 'consoleEvent') {
                     return handleConsole(message)
                 }
-                if (message.name === 'errorEvent') {
-                    return handleError(server, message)
-                }
             })
         }
     }
@@ -86,10 +84,4 @@ function instrument (filename: string, onConnect: (value: unknown) => void): Plu
 
 function handleConsole (message: ConsoleEvent) {
     console[message.type](...message.args)
-}
-
-function handleError (server: ViteDevServer, message: ErrorEvent) {
-    const stack = message.error
-        .replace(`http://localhost:${server.config.server.port}/@fs`, '')
-    console.error(message.message, stack)
 }
