@@ -48,14 +48,14 @@ export class ViteServer {
 
 function instrument (filename: string, onConnect: (value: ViteDevServer) => void): Plugin {
     const instrumentation = path.resolve(__dirname, 'browser', 'index.js')
-
+    const sendFinishEvent = `import.meta.hot?.send('bx:event', { name: 'doneEvent' })`
     return {
         name: 'instrument',
         enforce: 'post',
         transform: (code, id) => {
             if (id === filename) {
                 return {
-                    code: `${code}\nimport.meta.hot?.send('bx:event', { name: 'doneEvent' })`
+                    code: `${code}\n${sendFinishEvent}`
                 }
             }
             return null
@@ -77,6 +77,7 @@ function instrument (filename: string, onConnect: (value: ViteDevServer) => void
                     <html>
                     <script type="module" src="/@fs${instrumentation}"></script>
                     ${code}
+                    ${path.extname(filename) === '.html' ? `<script type="module">${sendFinishEvent}</script>` : ''}
                 `
                 res.end(await server.transformIndexHtml(`${req.originalUrl}`, template))
             })
