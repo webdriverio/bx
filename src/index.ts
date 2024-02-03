@@ -1,18 +1,9 @@
 import { parseArgs } from 'node:util'
 
+import { ViteServer } from './server.js'
 import { run } from './runner.js'
-
-const IS_CI = Boolean(process.env.HEADLESS || process.env.CI)
-const CLI_OPTIONS = {
-    browserName: { type: 'string', alias: 'b', default: 'chrome' },
-    browserVersion: { type: 'string', alias: 'v' },
-    headless: { type: 'boolean', alias: 'h', default: IS_CI },
-} as const
-const PARSE_OPTIONS = {
-    options: CLI_OPTIONS,
-    tokens: true,
-    allowPositionals: true
-} as const
+import { parseFileName } from './utils.js'
+import { CLI_OPTIONS, PARSE_OPTIONS } from './constants.js'
 
 export default async function cli () {
     const { values, tokens, positionals } = parseArgs(PARSE_OPTIONS)
@@ -29,10 +20,11 @@ export default async function cli () {
         }
     })
 
-    const filename = positionals[0]
+    const filename = parseFileName(positionals[0])
+    const server = new ViteServer({})
     try {
-        await run({
-            filename,
+        const env = await server.start(filename)
+        await run(env, {
             browserName: values.browserName!,
             browserVersion: values.browserVersion,
             headless: values.headless!
@@ -40,5 +32,7 @@ export default async function cli () {
     } catch (err) {
         console.error('Error:', (err as Error).message)
         process.exit(1)
+    } finally {
+        await server.stop()
     }
-}    
+}

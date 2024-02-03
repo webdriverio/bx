@@ -1,4 +1,13 @@
-export function getHeadlessArgs (browserName: string) {
+import path from 'node:path'
+
+import { SUPPORTED_FILE_EXTENSIONS } from './constants.js'
+import type { RunnerArgs } from './types.js'
+
+export function getHeadlessArgs ({ browserName, headless }: RunnerArgs) {
+    if (!headless) {
+        return {}
+    }
+
     if (browserName === 'chrome') {
         return {
             'goog:chromeOptions': {
@@ -20,4 +29,14 @@ export function getHeadlessArgs (browserName: string) {
     }
 
     throw new Error(`Given browser "${browserName}" doesn't support headless mode.`)
+}
+
+export function parseFileName (filename: string) {
+    if (!filename) {
+        throw new Error('Please provide a filename')
+    }
+    if (!SUPPORTED_FILE_EXTENSIONS.some((ext) => filename.endsWith(ext))) {
+        throw new Error(`Unsupported file extension: ${filename}, supported extensions are: ${SUPPORTED_FILE_EXTENSIONS.join(', ')}`)
+    }
+    return path.resolve(process.cwd(), filename)
 }
