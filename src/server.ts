@@ -2,7 +2,7 @@ import fs from 'node:fs/promises'
 import path from 'node:path'
 import { createServer, type InlineConfig, type ViteDevServer, type Plugin } from 'vite'
 
-import type { ExecutionEnvironment, ConsoleEvent } from './types.js'
+import type { ExecutionEnvironment, ConsoleEvent, ErrorEvent } from './types.js'
 
 const __dirname = path.dirname(new URL(import.meta.url).pathname)
 
@@ -46,7 +46,7 @@ export class ViteServer {
 }
 
 function instrument (filename: string, onConnect: (value: unknown) => void): Plugin {
-    const instrumenter = path.resolve(__dirname, 'browser', 'index.js')
+    const instrumentation = path.resolve(__dirname, 'browser', 'index.js')
 
     return {
         name: 'instrument',
@@ -65,16 +65,19 @@ function instrument (filename: string, onConnect: (value: unknown) => void): Plu
                 const template = `
                     <!DOCTYPE html>
                     <html>
-                    <script type="module" src="/@fs${instrumenter}"></script>
+                    <script type="module" src="/@fs${instrumentation}"></script>
                     ${code}
                 `
                 res.end(await server.transformIndexHtml(`${req.originalUrl}`, template))
             })
 
             server.ws.on('connection', onConnect)
-            server.ws.on('bx:event', (message: ConsoleEvent) => {
+            server.ws.on('bx:event', (message: ConsoleEvent | ErrorEvent) => {
                 if (message.name === 'consoleEvent') {
                     return handleConsole(message)
+                }
+                if (message.name === 'errorEvent') {
+                    return handleError(server, message)
                 }
             })
         }
@@ -83,4 +86,10 @@ function instrument (filename: string, onConnect: (value: unknown) => void): Plu
 
 function handleConsole (message: ConsoleEvent) {
     console[message.type](...message.args)
+}
+
+function handleError (server: ViteDevServer, message: ErrorEvent) {
+    const stack = message.error
+        .replace(`http://localhost:${server.config.server.port}/@fs`, '')
+    console.error(message.message, stack)
 }

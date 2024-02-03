@@ -17,6 +17,13 @@ for (const method of CONSOLE_METHODS) {
     }
 }
 
+addEventListener('error', (ev) => import.meta.hot?.send('bx:event', {
+    name: 'errorEvent',
+    filename: ev.filename,
+    message: ev.message,
+    error: ev.error.stack
+}))
+
 function sanitizeConsoleArgs (args: unknown[]) {
     return args.map((arg: any) => {
         if (

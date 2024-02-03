@@ -15,3 +15,10 @@ export interface ConsoleEvent {
     type: 'log' | 'info' | 'warn' | 'debug' | 'error'
     args: unknown[]
 }
+
+export interface ErrorEvent {
+    name: 'errorEvent'
+    filename: string
+    message: string
+    error: string
+}
