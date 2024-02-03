@@ -21,7 +21,13 @@ export async function run (env: ExecutionEnvironment, args: RunnerArgs) {
     })
 
     browser.url(env.url)
-    await env.connectPromise
+    await new Promise<void>((resolve) => {
+        env.server.ws.on('bx:event', (message) => {
+            if (message.name === 'doneEvent') {
+                resolve()
+            }
+        })
+    })
     await browser.deleteSession()
 
     if (error) {

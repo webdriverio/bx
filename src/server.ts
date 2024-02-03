@@ -2,7 +2,7 @@ import fs from 'node:fs/promises'
 import path from 'node:path'
 import { createServer, type InlineConfig, type ViteDevServer, type Plugin } from 'vite'
 
-import type { ExecutionEnvironment, ConsoleEvent, ErrorEvent } from './types.js'
+import type { ExecutionEnvironment, ConsoleEvent } from './types.js'
 
 const __dirname = path.dirname(new URL(import.meta.url).pathname)
 
@@ -51,6 +51,15 @@ function instrument (filename: string, onConnect: (value: ViteDevServer) => void
 
     return {
         name: 'instrument',
+        enforce: 'post',
+        transform: (code, id) => {
+            if (id === filename) {
+                return {
+                    code: `${code}\nimport.meta.hot?.send('bx:event', { name: 'doneEvent' })`
+                }
+            }
+            return null
+        },
         configureServer (server) {
             server.middlewares.use(async (req, res, next) => {
                 /**
@@ -73,7 +82,7 @@ function instrument (filename: string, onConnect: (value: ViteDevServer) => void
             })
 
             server.ws.on('connection', onConnect)
-            server.ws.on('bx:event', (message: ConsoleEvent | ErrorEvent) => {
+            server.ws.on('bx:event', (message: ConsoleEvent) => {
                 if (message.name === 'consoleEvent') {
                     return handleConsole(message)
                 }

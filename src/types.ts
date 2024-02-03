@@ -4,6 +4,7 @@ export interface RunnerArgs {
     browserName: string
     browserVersion?: string
     headless: boolean
+    rootDir: string
 }
 
 export interface ExecutionEnvironment {

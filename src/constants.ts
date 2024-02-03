@@ -4,6 +4,7 @@ export const CLI_OPTIONS = {
     browserName: { type: 'string', alias: 'b', default: 'chrome' },
     browserVersion: { type: 'string', alias: 'v' },
     headless: { type: 'boolean', alias: 'h', default: IS_CI },
+    rootDir: { type: 'string', alias: 'r', default: process.cwd() }
 } as const
 
 export const PARSE_OPTIONS = {

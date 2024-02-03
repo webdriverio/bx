@@ -4,6 +4,7 @@ import { ViteServer } from './server.js'
 import { run } from './runner.js'
 import { parseFileName } from './utils.js'
 import { CLI_OPTIONS, PARSE_OPTIONS } from './constants.js'
+import type { RunnerArgs } from './types.js'
 
 export default async function cli () {
     const { values, tokens, positionals } = parseArgs(PARSE_OPTIONS)
@@ -20,15 +21,13 @@ export default async function cli () {
         }
     })
 
+    const args = values as RunnerArgs
     const filename = parseFileName(positionals[0])
-    const server = new ViteServer({})
+    const server = new ViteServer({ root: args.rootDir })
+    
     try {
         const env = await server.start(filename)
-        await run(env, {
-            browserName: values.browserName!,
-            browserVersion: values.browserVersion,
-            headless: values.headless!
-        })
+        await run(env, args)
     } catch (err) {
         console.error('Error:', (err as Error).message)
         process.exit(1)

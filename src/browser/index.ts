@@ -1,6 +1,6 @@
 /// <reference types="vite/client" />
 
-const CONSOLE_METHODS = ['log', 'info', 'warn', 'error', 'debug'] as const
+const CONSOLE_METHODS = ['log', 'info', 'warn', 'error', 'debug', 'table'] as const
 for (const method of CONSOLE_METHODS) {
     const origCommand = console[method].bind(console)
     console[method] = (...args: unknown[]) => {
