@@ -1,0 +1,32 @@
+{
+  "name": "bx",
+  "version": "0.0.0",
+  "description": "Command line tool to run JavaScript, TypeScript or HTML files in the browser.",
+  "exports": "./dist/index.js",
+  "type": "module",
+  "scripts": {
+    "test": "vitest --run",
+    "watch": "tsc -w"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/christian-bromann/bx.git"
+  },
+  "keywords": [
+    "web"
+  ],
+  "author": "Christian Bromann <mail@bromann.dev>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/christian-bromann/bx/issues"
+  },
+  "homepage": "https://github.com/christian-bromann/bx#readme",
+  "devDependencies": {
+    "@types/node": "^20.11.16",
+    "typescript": "^5.3.3",
+    "vitest": "^1.2.2"
+  },
+  "dependencies": {
+    "webdriverio": "^8.29.7"
+  }
+}
