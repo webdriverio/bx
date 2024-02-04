@@ -1,18 +1,18 @@
-import { remote } from 'webdriverio'
-
-import { getHeadlessArgs } from './utils.js'
+import { initBrowserSession } from './utils.js'
+import { SessionManager } from './session.js'
 import type { ExecutionEnvironment, RunnerArgs } from './types.js'
 
 export async function run (env: ExecutionEnvironment, args: RunnerArgs) {
-    const browser = await remote({
-        logLevel: 'error',
-        capabilities: Object.assign({
-            browserName: args.browserName,
-            browserVersion: args.browserVersion
-        }, getHeadlessArgs(args))
-    })
+    const browser = args.sessionName
+        ? await SessionManager.loadSession(args.sessionName)
+        : await initBrowserSession(args)
 
     let error: Error | undefined
+
+    /**
+     * don't use `await` so that we can trigger url load and listen on events
+     * at the same time
+     */
     browser.url(env.url)
     await new Promise<void>((resolve) => {
         env.server.ws.on('bx:event', (message) => {
@@ -26,7 +26,13 @@ export async function run (env: ExecutionEnvironment, args: RunnerArgs) {
             }
         })
     })
-    await browser.deleteSession()
+
+    /**
+     * keep browser session around if a session name is provided
+     */
+    if (!args.sessionName) {
+        await browser.deleteSession()
+    }
 
     if (error) {
         console.error(error);

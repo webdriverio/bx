@@ -5,6 +5,7 @@ export interface RunnerArgs {
     browserVersion?: string
     headless: boolean
     rootDir: string
+    sessionName?: string
 }
 
 export interface ExecutionEnvironment {

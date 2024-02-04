@@ -1,4 +1,5 @@
 import path from 'node:path'
+import { remote } from 'webdriverio'
 
 import { SUPPORTED_FILE_EXTENSIONS } from './constants.js'
 import type { RunnerArgs } from './types.js'
@@ -39,4 +40,14 @@ export function parseFileName (filename: string) {
         throw new Error(`Unsupported file extension: ${filename}, supported extensions are: ${SUPPORTED_FILE_EXTENSIONS.join(', ')}`)
     }
     return path.resolve(process.cwd(), filename)
+}
+
+export async function initBrowserSession (args: RunnerArgs) {
+    return remote({
+        logLevel: 'error',
+        capabilities: Object.assign({
+            browserName: args.browserName,
+            browserVersion: args.browserVersion
+        }, getHeadlessArgs(args))
+    })
 }

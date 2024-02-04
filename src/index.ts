@@ -1,9 +1,8 @@
 import { parseArgs } from 'node:util'
 
-import { ViteServer } from './server.js'
-import { run } from './runner.js'
 import { parseFileName } from './utils.js'
 import { CLI_OPTIONS, PARSE_OPTIONS } from './constants.js'
+import { runCommand, startSession, stopSession } from './commands/index.js'
 import type { RunnerArgs } from './types.js'
 
 export default async function cli () {
@@ -21,17 +20,13 @@ export default async function cli () {
         }
     })
 
-    const args = values as RunnerArgs
-    const filename = parseFileName(positionals[0])
-    const server = new ViteServer({ root: args.rootDir })
-    
-    try {
-        const env = await server.start(filename)
-        await run(env, args)
-    } catch (err) {
-        console.error('Error:', (err as Error).message)
-        process.exit(1)
-    } finally {
-        await server.stop()
+    if (positionals.includes('session')) {
+        if (positionals.includes('stop')) {
+            return stopSession(values as RunnerArgs)
+        }
+
+        return startSession(values as RunnerArgs)
     }
+
+    return runCommand(parseFileName(positionals[0]), values as RunnerArgs)
 }
