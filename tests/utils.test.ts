@@ -38,7 +38,7 @@ test('parseFileName', () => {
 })
 
 test('initBrowserSession', async () => {
-    const session = await initBrowserSession({
+    await initBrowserSession({
         rootDir: process.cwd(),
         browserName: 'chrome',
         browserVersion: 'latest',
