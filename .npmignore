@@ -1,3 +1,7 @@
 src
 *.json
 examples
+.github
+.nvmrc
+vitest.config.ts
+tests
