@@ -5,3 +5,5 @@ examples
 .nvmrc
 vitest.config.ts
 tests
+coverage
+*.tgz
