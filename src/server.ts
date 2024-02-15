@@ -31,7 +31,7 @@ export class ViteServer {
 
         this.#server = await createServer({
             ...this.#options,
-            plugins: [instrument(filename, onConnectHandler)]
+            plugins: [await instrument(filename, onConnectHandler)]
         })
         await this.#server.listen()
         return {
@@ -46,12 +46,12 @@ export class ViteServer {
     }
 }
 
-function instrument (filename: string, onConnect: (value: ViteDevServer) => void): Plugin {
-    const instrumentation = path.resolve(__dirname, 'browser', 'index.js')
-    const sendFinishEvent = `import.meta.hot?.send('bx:event', { name: 'doneEvent' })`
+async function instrument (filename: string, onConnect: (value: ViteDevServer) => void): Promise<Plugin> {
+    const instrumentation = await fs.readFile(path.join(__dirname, 'instrumentation.js'), 'utf-8')
+    const sendFinishEvent = `requestAnimationFrame(() => import.meta.hot?.send('bx:event', { name: 'doneEvent' }))`
     return {
         name: 'instrument',
-        enforce: 'post',
+        enforce: 'pre',
         transform: (code, id) => {
             if (id === filename) {
                 return {
@@ -75,15 +75,15 @@ function instrument (filename: string, onConnect: (value: ViteDevServer) => void
                 const template = `
                     <!DOCTYPE html>
                     <html>
-                    <script type="module" src="/@fs${instrumentation}"></script>
+                    <script type="module">${instrumentation}</script>
                     ${code}
                     ${path.extname(filename) === '.html' ? `<script type="module">${sendFinishEvent}</script>` : ''}
                 `
                 res.end(await server.transformIndexHtml(`${req.originalUrl}`, template))
             })
 
-            server.ws.on('connection', onConnect)
-            server.ws.on('bx:event', (message: ConsoleEvent) => {
+            server.hot.on('connection', onConnect)
+            server.hot.on('bx:event', (message: ConsoleEvent) => {
                 if (message.name === 'consoleEvent') {
                     return handleConsole(message)
                 }
