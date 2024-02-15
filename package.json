@@ -14,7 +14,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+ssh://git@github.com/christian-bromann/bx.git"
+    "url": "git+ssh://git@github.com/webdriverio/bx.git"
   },
   "keywords": [
     "web"
@@ -22,9 +22,9 @@
   "author": "Christian Bromann <mail@bromann.dev>",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/christian-bromann/bx/issues"
+    "url": "https://github.com/webdriverio/bx/issues"
   },
-  "homepage": "https://github.com/christian-bromann/bx#readme",
+  "homepage": "https://github.com/webdriverio/bx#readme",
   "devDependencies": {
     "@types/node": "^20.11.19",
     "@vitest/coverage-v8": "^1.2.2",
