@@ -4,7 +4,7 @@ import { remote } from 'webdriverio'
 import { SUPPORTED_FILE_EXTENSIONS } from './constants.js'
 import type { RunnerArgs } from './types.js'
 
-export function getHeadlessArgs ({ browserName, headless }: RunnerArgs) {
+export function getHeadlessArgs ({ browserName, headless }: Pick<RunnerArgs, 'browserName' | 'headless'>) {
     if (!headless) {
         return {}
     }

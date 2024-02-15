@@ -8,6 +8,7 @@
     "bx": "./bin/bx.js"
   },
   "scripts": {
+    "build": "tsc",
     "test": "vitest --run",
     "watch": "tsc -w"
   },
@@ -26,11 +27,12 @@
   "homepage": "https://github.com/christian-bromann/bx#readme",
   "devDependencies": {
     "@types/node": "^20.11.16",
+    "@vitest/coverage-v8": "^1.2.2",
+    "tinybench": "^2.6.0",
     "typescript": "^5.3.3",
     "vitest": "^1.2.2"
   },
   "dependencies": {
-    "tinybench": "^2.6.0",
     "vite": "^5.0.12",
     "webdriverio": "^8.29.7"
   }

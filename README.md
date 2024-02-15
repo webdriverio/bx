@@ -2,15 +2,10 @@
 
 With Node.js, Deno or Bun there are so many JavaScript environments to choose from. However, nothing is as good as the browser environment. `bx` gives you an execution runtime for the browser.
 
-For example, let's say you have a script like this:
-
-```js
-console.log(navigator.userAgent)
-```
-
 With `bx` you can easily run this script within different browser environments:
 
 ```sh
+> echo "console.log(navigator.userAgent)" &> script.js
 > npx bx ./script.js
 Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36
 ```
