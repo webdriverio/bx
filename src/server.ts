@@ -47,7 +47,7 @@ export class ViteServer {
 }
 
 async function instrument (filename: string, onConnect: (value: ViteDevServer) => void): Promise<Plugin> {
-    const instrumentation = await fs.readFile(path.join(__dirname, 'instrumentation.js'), 'utf-8')
+    const instrumentation = await fs.readFile(path.resolve(__dirname, 'browser', 'index.js'), 'utf-8')
     const sendFinishEvent = `requestAnimationFrame(() => import.meta.hot?.send('bx:event', { name: 'doneEvent' }))`
     return {
         name: 'instrument',
