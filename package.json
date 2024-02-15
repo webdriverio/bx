@@ -1,6 +1,6 @@
 {
   "name": "bx",
-  "version": "0.4.2",
+  "version": "0.4.3",
   "description": "Command line tool to run JavaScript, TypeScript or HTML files in the browser.",
   "exports": "./dist/index.js",
   "type": "module",
