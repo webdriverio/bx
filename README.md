@@ -90,8 +90,6 @@ console.log("Server running at http://localhost:3000/");
 Another interesting use case is running benchmarks within different browsers using tools like Tinybench. For example:
 
 ```ts
-import assert from 'node:assert'
-import { test } from 'node:test'
 import { run } from 'bx'
 
 async function benchmarkTest() {
@@ -107,33 +105,26 @@ async function benchmarkTest() {
             console.log('I am slower')
         })
 
-    await bench.warmup(); // make results more reliable, ref: https://github.com/tinylibs/tinybench/pull/50
     await bench.run();
-
     return bench.results;
 }
 
-test('benchmark test in Chrome', async () => {
-    const results = await run(benchmarkTest, {
-        browserName: 'chrome'
-    })
-    assert.equal(results.length, 2)
-    assert.ok(results[0].mean < results[1].mean)
-    assert.ok(results[0].mean < 1)
-    // mean is around 4.45
-    assert.ok(results[1].mean > 4)
-    assert.ok(results[1].mean < 5)
+const [fasterTaskChrome, slowerTaskChrome] = await run(benchmarkTest, {
+    browserName: 'chrome'
+})
+const [fasterTaskFirefox, slowerTaskFirefox] = await run(benchmarkTest, {
+    browserName: 'firefox'
 })
 
-test('benchmark test in Firefox', async () => {
-    const results = await run(benchmarkTest, {
-        browserName: 'firefox'
-    })
-    assert.ok(results[0].mean < 1)
-    // mean is around 5
-    assert.ok(results[1].mean > 4.5)
-    assert.ok(results[1].mean < 5.55)
-})
+console.log(`Chrome: faster task ${fasterTaskChrome.mean}ms, slower task ${slowerTaskChrome.mean}ms`)
+console.log(`Firefox: faster task ${fasterTaskFirefox.mean}ms, slower task ${slowerTaskFirefox.mean}ms`)
+```
+
+which prints out:
+
+```
+Chrome: faster task 0.015639662257872562ms, slower task 4.015384614467621ms
+Firefox: faster task 0.007285443683520326ms, slower task 4.761904761904762ms
 ```
 
 # Session Management
