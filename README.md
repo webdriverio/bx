@@ -51,7 +51,7 @@ You can also run `bx` programmatically, e.g. to hydrate components within the br
 import path from "node:path";
 import Koa from "koa";
 
-import { run } from "../../dist/index.js";
+import { run } from "bx";
 
 const __dirname = path.dirname(new URL(import.meta.url).pathname);
 const app = new Koa();
