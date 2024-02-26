@@ -1,4 +1,4 @@
-# 🌐 bx - a browser runner
+# 🌐 bx - a browser runner [![CI](https://github.com/webdriverio/bx/actions/workflows/ci.yml/badge.svg)](https://github.com/webdriverio/bx/actions/workflows/ci.yml)
 
 With Node.js, Deno or Bun there are so many JavaScript environments to choose from. However, nothing is as good as the browser environment. `bx` gives you an execution runtime for the browser.
 
