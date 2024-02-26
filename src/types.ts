@@ -1,10 +1,10 @@
 import type { ViteDevServer } from 'vite'
 
 export interface RunnerArgs {
-    browserName: string
+    browserName?: string
     browserVersion?: string
-    headless: boolean
-    rootDir: string
+    headless?: boolean
+    rootDir?: string
     sessionName?: string
 }
 

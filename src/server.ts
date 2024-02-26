@@ -71,7 +71,7 @@ async function instrument (filename: string, onConnect: (value: ViteDevServer) =
 
                 const code = path.extname(filename) === '.html'
                     ? await fs.readFile(filename, 'utf-8')
-                    : `<script type="module" src="/@fs${filename}"></script>`
+                    : `<script type="module" src="/@fs${path.resolve(process.cwd(), filename)}"></script>`
                 const template = `
                     <!DOCTYPE html>
                     <html>

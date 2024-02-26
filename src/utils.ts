@@ -21,7 +21,7 @@ export function getHeadlessArgs ({ browserName, headless }: Pick<RunnerArgs, 'br
                 args: ['-headless']
             }
         }
-    } else if (browserName.includes('edge')) {
+    } else if (browserName && browserName.includes('edge')) {
         return {
             'ms:edgeOptions': {
                 args: ['--headless']
@@ -42,7 +42,8 @@ export function parseFileName (filename: string) {
     return path.resolve(process.cwd(), filename)
 }
 
-export async function initBrowserSession (args: RunnerArgs) {
+export async function initBrowserSession (params: RunnerArgs) {
+    const args = parseRunArgs(params)
     return remote({
         logLevel: 'error',
         capabilities: Object.assign({
@@ -50,4 +51,15 @@ export async function initBrowserSession (args: RunnerArgs) {
             browserVersion: args.browserVersion
         }, getHeadlessArgs(args))
     })
+}
+
+export function parseRunArgs (args: RunnerArgs) {
+    const browserName = args.browserName
+    if (!browserName) {
+        throw new Error('Please provide a browser name')
+    }
+    const browserVersion = args.browserVersion
+    const headless = args.headless ?? true
+    const rootDir = args.rootDir ?? process.cwd()
+    return { browserName, browserVersion, headless, rootDir }
 }

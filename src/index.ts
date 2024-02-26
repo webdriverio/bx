@@ -1,32 +1,18 @@
-import { parseArgs } from 'node:util'
+import yargs from 'yargs'
+import { hideBin } from 'yargs/helpers'
 
-import { parseFileName } from './utils.js'
-import { CLI_OPTIONS, PARSE_OPTIONS } from './constants.js'
-import { runCommand, startSession, stopSession } from './commands/index.js'
-import type { RunnerArgs } from './types.js'
+import commands from './cli/index.js'
+import { handler } from './cli/run.js'
 
 export default async function cli () {
-    const { values, tokens, positionals } = parseArgs(PARSE_OPTIONS)
-
-    ;(tokens || []).filter((token) => token.kind === 'option').forEach((token: any) => {
-        if (token.name.startsWith('no-')) {
-            // Store foo:false for --no-foo
-            const positiveName = token.name.slice(3) as 'headless'
-            values[positiveName] = false
-            delete values[token.name as 'headless']
-        } else {
-            // Re-save value so last one wins if both --foo and --no-foo.
-            values[token.name as keyof typeof CLI_OPTIONS] = token.value ?? true
-        }
-    })
-
-    if (positionals.includes('session')) {
-        if (positionals.includes('stop')) {
-            return stopSession(values as RunnerArgs)
-        }
-
-        return startSession(values as RunnerArgs)
+    const argv = yargs(hideBin(process.argv))
+        .command(commands)
+        .help()
+        .argv
+    
+    const cmdNames = commands.map((command: { command: string }) => command.command.split(' ')[0])
+    const params = await argv
+    if (!cmdNames.includes(`${params['_'][0]}`)) {
+        await handler()
     }
-
-    return runCommand(parseFileName(positionals[0]), values as RunnerArgs)
 }

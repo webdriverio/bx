@@ -32,3 +32,33 @@ Running this with `bx` results in:
 > npx bx ./html.html
 Hello World!
 ```
+
+## Session Management
+
+If you like to speed up your execution, you can create browser sessions on your system and run scripts through them immediately without having to spin up the browser. You can create a session via:
+
+```sh
+# create a session with random session name, e.g. "chrome-1"
+npx bx session --browserName chrome
+# create a session with custom name
+npx bx session --browserName chrome --name chrome
+```
+
+You can now run scripts faster by providing a session name:
+
+```sh
+npx bx ./script.ts --sessionName chrome
+```
+
+To view all opened sessions, run:
+
+```sh
+npx bx session
+```
+
+Kill specific or all sessions via:
+
+```sh
+npx bx session --kill chrome
+npx bx session --killAll
+```
