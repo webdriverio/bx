@@ -68,7 +68,11 @@ export async function deleteSession(sessionName?: string) {
         throw new Error(`Session "${sessionName}" not found`)
     }
 
-    await fs.unlink(sessionFilePath)
+    const session = await loadSession(sessionName)
+    return Promise.all([
+        fs.unlink(sessionFilePath),
+        session.deleteSession()
+    ])
 }
 
 export async function deleteAllSessions() {
@@ -79,7 +83,9 @@ export async function deleteAllSessions() {
         }
         const sessionName = path.basename(file, path.extname(file)).replace(SESSION_FILE_PREFIX, '')
         const session = await loadSession(sessionName)
-        await fs.unlink(path.join(SESSION_DIR, file))
-        await session.deleteSession()
+        return Promise.all([
+            fs.unlink(path.join(SESSION_DIR, file)),
+            session.deleteSession()
+        ])
     }))
 }

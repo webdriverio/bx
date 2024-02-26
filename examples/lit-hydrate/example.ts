@@ -3,8 +3,6 @@ import Koa from 'koa'
 
 import { run } from '../../dist/index.js'
 
-import {render} from '@lit-labs/ssr'
-
 const __dirname = path.dirname(new URL(import.meta.url).pathname)
 const app = new Koa()
 
@@ -13,15 +11,15 @@ app.use(async (ctx) => {
         return
     }
 
-    ctx.body = await run(/*js*/`
-        import {render} from '@lit-labs/ssr';
-        import {html} from 'lit';
-        import './component.ts';
+    ctx.body = await run(async () => {
+        const { render } = await import('@lit-labs/ssr');
+        const { html } = await import('lit');
+        await import('./component.ts');
 
-        const dom = await render(html\`<simple-greeting></simple-greeting>\`);
-        export default Array.from(dom).join('\\n')
-    `, {
-        browserName: 'chrome',
+        const dom = await render(html`<simple-greeting></simple-greeting>`);
+        return Array.from(dom).join('\n')
+    }, {
+        sessionName: 'haha',
         rootDir: __dirname
     })
 })

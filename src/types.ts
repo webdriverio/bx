@@ -26,3 +26,5 @@ export interface ErrorEvent {
     message: string
     error: string
 }
+
+export type Target = string | (() => any | Promise<any>)

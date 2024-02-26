@@ -31,7 +31,7 @@ It even allows you to run `.html` files, e.g. given this file:
 
 ```html
 <script type="module">
-  console.log(document.querySelector('b').textContent);
+  console.log(document.querySelector("b").textContent);
 </script>
 <b>Hello World!</b>
 ```
@@ -48,34 +48,37 @@ Hello World!
 You can also run `bx` programmatically, e.g. to hydrate components within the browser. For example, to hydrate a [Lit](https://lit.dev/) component through a [Koa](https://koajs.com/) server, you can run this script:
 
 ```ts
-import path from 'node:path'
-import Koa from 'koa'
+import path from "node:path";
+import Koa from "koa";
 
-import { run } from '../../dist/index.js'
+import { run } from "../../dist/index.js";
 
-const __dirname = path.dirname(new URL(import.meta.url).pathname)
-const app = new Koa()
+const __dirname = path.dirname(new URL(import.meta.url).pathname);
+const app = new Koa();
 
 app.use(async (ctx) => {
-    if (ctx.path === '/favicon.ico') {
-        return
-    }
+  if (ctx.path === "/favicon.ico") {
+    return;
+  }
 
-    ctx.body = await run(/*js*/`
-        import {render} from '@lit-labs/ssr';
-        import {html} from 'lit';
-        import './component.ts';
+  ctx.body = await run(async () => {
+    /**
+     * runs in the browser
+     */
+    const { render } = await import("@lit-labs/ssr");
+    const { html } = await import("lit");
+    await import("./component.ts");
 
-        const dom = await render(html\`<simple-greeting></simple-greeting>\`);
-        export default Array.from(dom).join('\\n')
-    `, {
-        browserName: 'chrome',
-        rootDir: __dirname
-    })
-})
+    const dom = await render(html`<simple-greeting></simple-greeting>`);
+    return Array.from(dom).join("\n");
+  }, {
+    browserName: "chrome",
+    rootDir: __dirname,
+  });
+});
 
-app.listen(3000)
-console.log('Server running at http://localhost:3000/');
+app.listen(3000);
+console.log("Server running at http://localhost:3000/");
 ```
 
 # Session Management

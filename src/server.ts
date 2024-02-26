@@ -2,7 +2,7 @@ import fs from 'node:fs/promises'
 import path from 'node:path'
 import { createServer, type InlineConfig, type ViteDevServer, type Plugin } from 'vite'
 
-import type { ExecutionEnvironment, ConsoleEvent } from './types.js'
+import type { ExecutionEnvironment, ConsoleEvent, Target } from './types.js'
 
 const __dirname = path.dirname(new URL(import.meta.url).pathname)
 const virtualModuleId = 'virtual:inline'
@@ -24,7 +24,7 @@ export class ViteServer {
         }
     }
 
-    async start(target: string): Promise<ExecutionEnvironment> {
+    async start(target: Target): Promise<ExecutionEnvironment> {
         let onConnectHandler: (value: ViteDevServer) => void = () => { }
         const connectPromise = new Promise<ViteDevServer>((resolve) => {
             onConnectHandler = resolve
@@ -47,7 +47,7 @@ export class ViteServer {
     }
 }
 
-async function instrument(target: string, onConnect: (value: ViteDevServer) => void): Promise<Plugin> {
+async function instrument(target: Target, onConnect: (value: ViteDevServer) => void): Promise<Plugin> {
     const instrumentation = await fs.readFile(path.resolve(__dirname, 'browser', 'index.js'), 'utf-8')
     const sendFinishEvent = `requestAnimationFrame(() => import.meta.hot?.send('bx:event', { name: 'doneEvent' }))`
     return {
@@ -60,8 +60,11 @@ async function instrument(target: string, onConnect: (value: ViteDevServer) => v
             return null
         },
         load(id) {
-            if (id === resolvedVirtualModuleId) {
+            if (typeof target === 'string' && id === resolvedVirtualModuleId) {
                 return target
+            }
+            if (typeof target === 'function' && id === resolvedVirtualModuleId) {
+                return `export default await (${target.toString()})()`
             }
             return null
         },
@@ -82,7 +85,7 @@ async function instrument(target: string, onConnect: (value: ViteDevServer) => v
                     return next()
                 }
 
-                const code = target.startsWith('./') || target.startsWith('/')
+                const code = typeof target === 'string' && (target.startsWith('./') || target.startsWith('/'))
                     ? path.extname(target) === '.html'
                         ? await fs.readFile(target, 'utf-8')
                         : `<script type="module" src="/@fs${path.resolve(process.cwd(), target)}"></script>`
@@ -98,7 +101,10 @@ async function instrument(target: string, onConnect: (value: ViteDevServer) => v
                     <html>
                     <script type="module">${instrumentation}</script>
                     ${code}
-                    ${path.extname(target) === '.html' ? `<script type="module">${sendFinishEvent}</script>` : ''}
+                    ${typeof target === 'string' && path.extname(target) === '.html'
+                        ? `<script type="module">${sendFinishEvent}</script>`
+                        : ''
+                    }
                 `
                 res.end(await server.transformIndexHtml(`${req.originalUrl}`, template))
             })

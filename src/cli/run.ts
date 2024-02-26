@@ -5,7 +5,7 @@ import type { Argv } from 'yargs'
 import { ViteServer } from '../server.js'
 import { run as runCall } from '../runner.js'
 import { CLI_EPILOGUE } from '../constants.js'
-import type { RunnerArgs } from '../types.js'
+import type { RunnerArgs, Target } from '../types.js'
 
 export const command = '<target> [options]'
 export const desc = 'Run script, html file or URL.'
@@ -51,13 +51,13 @@ export const handler = async () => {
     process.exit(0)
 }
 
-export async function run (target?: string, params?: RunnerArgs) {
+export async function run (target?: Target, params?: RunnerArgs) {
     if (!target) {
         console.error('Error: No target provided')
         process.exit(1)
     }
 
-    if (target.startsWith('http')) {
+    if (typeof target === 'string' && target.startsWith('http')) {
         console.error('Error: Running URLs is not supported yet')
         process.exit(1)
     }
