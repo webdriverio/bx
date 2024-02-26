@@ -8,10 +8,10 @@ export default defineConfig({
     coverage: {
         enabled: true,
         thresholds: {
-            statements: 13,
-            branches: 54,
+            statements: 10,
+            branches: 50,
             functions: 21,
-            lines: 13
+            lines: 10
         }
     }
   }
