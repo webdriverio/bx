@@ -19,7 +19,7 @@ app.use(async (ctx) => {
         const dom = await render(html`<simple-greeting></simple-greeting>`);
         return Array.from(dom).join('\n')
     }, {
-        sessionName: 'haha',
+        browserName: 'chrome',
         rootDir: __dirname
     })
 })
