@@ -5,7 +5,7 @@
   "exports": "./dist/index.js",
   "type": "module",
   "bin": {
-    "bx": "./bin/bx.js"
+    "bx": "./bin/bx"
   },
   "scripts": {
     "build": "run-s clean compile",
