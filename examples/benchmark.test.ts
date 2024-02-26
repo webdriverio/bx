@@ -8,11 +8,11 @@ async function benchmarkTest() {
 
     bench
         .add('faster task', () => {
-            // console.log('I am faster')
+            console.log('I am faster')
         })
         .add('slower task', async () => {
             await new Promise(r => setTimeout(r, 1)) // we wait 1ms :)
-            // console.log('I am slower')
+            console.log('I am slower')
         })
 
     await bench.warmup(); // make results more reliable, ref: https://github.com/tinylibs/tinybench/pull/50
@@ -39,6 +39,6 @@ test('benchmark test in Firefox', async () => {
     })
     assert.ok(results[0].mean < 1)
     // mean is around 5
-    assert.ok(results[1].mean > 4.5)
-    assert.ok(results[1].mean < 5.55)
+    assert.ok(results[1].mean > 5)
+    assert.ok(results[1].mean < 6)
 })
