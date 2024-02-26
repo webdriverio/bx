@@ -1,7 +1,7 @@
 import path from 'node:path'
 import { remote } from 'webdriverio'
 
-import { SUPPORTED_FILE_EXTENSIONS } from './constants.js'
+import { SUPPORTED_FILE_EXTENSIONS, DEFAULT_BROWSER } from './constants.js'
 import type { RunnerArgs } from './types.js'
 
 export function getHeadlessArgs ({ browserName, headless }: Pick<RunnerArgs, 'browserName' | 'headless'>) {
@@ -54,10 +54,7 @@ export async function initBrowserSession (params: RunnerArgs) {
 }
 
 export function parseRunArgs (args: RunnerArgs) {
-    const browserName = args.browserName
-    if (!browserName) {
-        throw new Error('Please provide a browser name')
-    }
+    const browserName = args.browserName ?? DEFAULT_BROWSER
     const browserVersion = args.browserVersion
     const headless = args.headless ?? true
     const rootDir = args.rootDir ?? process.cwd()

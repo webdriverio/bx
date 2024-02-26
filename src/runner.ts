@@ -1,12 +1,12 @@
 import { initBrowserSession } from './utils.js'
-import { SessionManager } from './session.js'
+import { loadSession } from './session.js'
 import type { ExecutionEnvironment, RunnerArgs } from './types.js'
 
 const SAFARI_ERROR_PREFIX = 'module code@'
 
 export async function run (env: ExecutionEnvironment, args: RunnerArgs) {
     const browser = args.sessionName
-        ? await SessionManager.loadSession(args.sessionName)
+        ? await loadSession(args.sessionName)
         : await initBrowserSession(args)
 
     let error: Error | undefined
@@ -16,8 +16,8 @@ export async function run (env: ExecutionEnvironment, args: RunnerArgs) {
      * at the same time
      */
     browser.url(env.url)
-    await new Promise<void>((resolve) => {
-        env.server.ws.on('bx:event', (message) => {
+    const result = await new Promise<any>((resolve) => {
+        env.server.hot.on('bx:event', (message) => {
             if (message.name === 'errorEvent') {
                 error = new Error(message.message)
 
@@ -30,10 +30,10 @@ export async function run (env: ExecutionEnvironment, args: RunnerArgs) {
                 }
 
                 error.stack = message.error.replace(`http://localhost:${env.server.config.server.port}/@fs`, 'file://')
-                return resolve()
+                return resolve(undefined)
             }
             if (message.name === 'doneEvent') {
-                return resolve()
+                return resolve(message.result)
             }
         })
     })
@@ -46,7 +46,8 @@ export async function run (env: ExecutionEnvironment, args: RunnerArgs) {
     }
 
     if (error) {
-        console.error(error);
-        process.exit(1)
+        throw error
     }
+
+    return result
 }

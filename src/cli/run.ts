@@ -3,8 +3,9 @@ import { hideBin } from 'yargs/helpers'
 import type { Argv } from 'yargs'
 
 import { ViteServer } from '../server.js'
-import { run } from '../runner.js'
+import { run as runCall } from '../runner.js'
 import { CLI_EPILOGUE } from '../constants.js'
+import type { RunnerArgs } from '../types.js'
 
 export const command = '<target> [options]'
 export const desc = 'Run script, html file or URL.'
@@ -45,10 +46,12 @@ export const builder = (yargs: Argv) => {
 
 export const handler = async () => {
     const params = await yargsInstance.parse()
-    const rootDir = params.rootDir || process.cwd()
-    const server = new ViteServer({ root: rootDir })
     const target = params._[0] as string | undefined
+    await run(target, params)
+    process.exit(0)
+}
 
+export async function run (target?: string, params?: RunnerArgs) {
     if (!target) {
         console.error('Error: No target provided')
         process.exit(1)
@@ -59,13 +62,18 @@ export const handler = async () => {
         process.exit(1)
     }
     
+    let server: ViteServer | undefined
+    let result: any
     try {
+        const rootDir = params?.rootDir || process.cwd()
+        const server = new ViteServer({ root: rootDir })
         const env = await server.start(target)
-        await run(env, params)
+        result = await runCall(env, params || {})
     } catch (err) {
         console.error('Error:', (err as Error).message)
-        process.exit(1)
     } finally {
-        await server.stop()
+        await server?.stop()
     }
+
+    return result
 }

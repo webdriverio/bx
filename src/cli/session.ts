@@ -5,7 +5,7 @@ import type { Argv } from 'yargs'
 import { cmdArgs as runCmdArgs } from './run.js'
 import { CLI_EPILOGUE } from '../constants.js'
 import { initBrowserSession } from '../utils.js'
-import { SessionManager } from '../session.js'
+import { deleteSession, deleteAllSessions, listSessions, saveSession } from '../session.js'
 
 export const command = 'session [options]'
 export const desc = 'Manage `bx` sessions.'
@@ -42,12 +42,12 @@ export const handler = async () => {
     const params = await yargsInstance.parse()
     
     if (typeof params.kill === 'string') {
-        await SessionManager.deleteSession(params.kill)
+        await deleteSession(params.kill)
         return console.log(`Session "${params.kill}" stopped`)
     }
 
     if (params.killAll) {
-        await SessionManager.deleteAllSessions()
+        await deleteAllSessions()
         return console.log('All sessions stopped')
     }
 
@@ -57,7 +57,7 @@ export const handler = async () => {
      * if browserName is not provided, list all sessions
      */
     if (!browserName) {
-        const sessions = await SessionManager.listSessions()
+        const sessions = await listSessions()
         if (sessions.length === 0) {
             return console.log('No sessions found!')
         }
@@ -74,7 +74,7 @@ export const handler = async () => {
      * if no session name is provided, generate a random one
      */
     if (!sessionName) {
-        const sessions = await SessionManager.listSessions()
+        const sessions = await listSessions()
         const browserNameSessions = sessions.filter((session) => session.requestedCapabilities.browserName === browserName)
         sessionName = `${browserName}-${browserNameSessions.length}`
     }
@@ -82,7 +82,7 @@ export const handler = async () => {
     const headless = Boolean(params.headless)
     const rootDir = params.rootDir || process.cwd()
     const browser = await initBrowserSession({ ...params, rootDir, headless, browserName })
-    await SessionManager.saveSession(browser, sessionName)
+    await saveSession(browser, sessionName)
     console.log(`Session "${sessionName}" started, you can now run scripts faster e.g. \`npx bx ./script.js --sessionName ${sessionName}\``)
     process.exit(0)
 }

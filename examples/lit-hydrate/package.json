@@ -1,0 +1,12 @@
+{
+    "name": "lit-hydration-example",
+    "private": true,
+    "type": "module",
+    "dependencies": {
+        "koa": "^2.15.0",
+        "lit": "^3.1.2"
+    },
+    "devDependencies": {
+        "@lit-labs/ssr": "^3.2.2"
+    }
+}

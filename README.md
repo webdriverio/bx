@@ -2,7 +2,17 @@
 
 With Node.js, Deno or Bun there are so many JavaScript environments to choose from. However, nothing is as good as the browser environment. `bx` gives you an execution runtime for the browser.
 
-With `bx` you can easily run this script within different browser environments:
+# Install
+
+No install needed, just run it directly via `npx`, e.g.:
+
+```sh
+npx bx "console.log(navigator.userAgent)"
+```
+
+# Usage
+
+With `bx` you can easily run scripts (JS or TS) within different browser environments:
 
 ```sh
 > echo "console.log(navigator.userAgent)" &> script.js
@@ -33,7 +43,42 @@ Running this with `bx` results in:
 Hello World!
 ```
 
-## Session Management
+# Run Programmatically
+
+You can also run `bx` programmatically, e.g. to hydrate components within the browser. For example, to hydrate a [Lit](https://lit.dev/) component through a [Koa](https://koajs.com/) server, you can run this script:
+
+```ts
+import path from 'node:path'
+import Koa from 'koa'
+
+import { run } from '../../dist/index.js'
+
+const __dirname = path.dirname(new URL(import.meta.url).pathname)
+const app = new Koa()
+
+app.use(async (ctx) => {
+    if (ctx.path === '/favicon.ico') {
+        return
+    }
+
+    ctx.body = await run(/*js*/`
+        import {render} from '@lit-labs/ssr';
+        import {html} from 'lit';
+        import './component.ts';
+
+        const dom = await render(html\`<simple-greeting></simple-greeting>\`);
+        export default Array.from(dom).join('\\n')
+    `, {
+        browserName: 'chrome',
+        rootDir: __dirname
+    })
+})
+
+app.listen(3000)
+console.log('Server running at http://localhost:3000/');
+```
+
+# Session Management
 
 If you like to speed up your execution, you can create browser sessions on your system and run scripts through them immediately without having to spin up the browser. You can create a session via:
 

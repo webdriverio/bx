@@ -5,7 +5,8 @@ import { createServer, type InlineConfig, type ViteDevServer, type Plugin } from
 import type { ExecutionEnvironment, ConsoleEvent } from './types.js'
 
 const __dirname = path.dirname(new URL(import.meta.url).pathname)
-
+const virtualModuleId = 'virtual:inline'
+const resolvedVirtualModuleId = '\0' + virtualModuleId
 const DEFAULT_OPTIONS: InlineConfig = {
     configFile: false,
     server: { host: 'localhost', port: 0 },
@@ -16,22 +17,22 @@ export class ViteServer {
     #server?: ViteDevServer
     #options: InlineConfig
 
-    constructor (options: InlineConfig) {
+    constructor(options: InlineConfig) {
         this.#options = {
             ...DEFAULT_OPTIONS,
             ...options,
         }
     }
 
-    async start (filename: string): Promise<ExecutionEnvironment> {
-        let onConnectHandler: (value: ViteDevServer) => void = () => {}
+    async start(target: string): Promise<ExecutionEnvironment> {
+        let onConnectHandler: (value: ViteDevServer) => void = () => { }
         const connectPromise = new Promise<ViteDevServer>((resolve) => {
             onConnectHandler = resolve
         })
 
         this.#server = await createServer({
             ...this.#options,
-            plugins: [await instrument(filename, onConnectHandler)]
+            plugins: [await instrument(target, onConnectHandler)]
         })
         await this.#server.listen()
         return {
@@ -41,26 +42,38 @@ export class ViteServer {
         }
     }
 
-    async stop () {
+    async stop() {
         await this.#server?.close()
     }
 }
 
-async function instrument (filename: string, onConnect: (value: ViteDevServer) => void): Promise<Plugin> {
+async function instrument(target: string, onConnect: (value: ViteDevServer) => void): Promise<Plugin> {
     const instrumentation = await fs.readFile(path.resolve(__dirname, 'browser', 'index.js'), 'utf-8')
     const sendFinishEvent = `requestAnimationFrame(() => import.meta.hot?.send('bx:event', { name: 'doneEvent' }))`
     return {
         name: 'instrument',
         enforce: 'pre',
+        resolveId(id) {
+            if (id === virtualModuleId) {
+                return resolvedVirtualModuleId
+            }
+            return null
+        },
+        load(id) {
+            if (id === resolvedVirtualModuleId) {
+                return target
+            }
+            return null
+        },
         transform: (code, id) => {
-            if (id === filename) {
+            if (id === target) {
                 return {
                     code: `${code}\n${sendFinishEvent}`
                 }
             }
             return null
         },
-        configureServer (server) {
+        configureServer(server) {
             server.middlewares.use(async (req, res, next) => {
                 /**
                  * don't return test page when sourcemaps are requested
@@ -69,15 +82,23 @@ async function instrument (filename: string, onConnect: (value: ViteDevServer) =
                     return next()
                 }
 
-                const code = path.extname(filename) === '.html'
-                    ? await fs.readFile(filename, 'utf-8')
-                    : `<script type="module" src="/@fs${path.resolve(process.cwd(), filename)}"></script>`
+                const code = target.startsWith('./') || target.startsWith('/')
+                    ? path.extname(target) === '.html'
+                        ? await fs.readFile(target, 'utf-8')
+                        : `<script type="module" src="/@fs${path.resolve(process.cwd(), target)}"></script>`
+                    : `<script type="module">
+                        import result from '${virtualModuleId}';
+                        import.meta.hot?.send('bx:event', {
+                            name: 'doneEvent',
+                            result
+                        })
+                    </script>`
                 const template = `
                     <!DOCTYPE html>
                     <html>
                     <script type="module">${instrumentation}</script>
                     ${code}
-                    ${path.extname(filename) === '.html' ? `<script type="module">${sendFinishEvent}</script>` : ''}
+                    ${path.extname(target) === '.html' ? `<script type="module">${sendFinishEvent}</script>` : ''}
                 `
                 res.end(await server.transformIndexHtml(`${req.originalUrl}`, template))
             })
@@ -92,6 +113,6 @@ async function instrument (filename: string, onConnect: (value: ViteDevServer) =
     }
 }
 
-function handleConsole (message: ConsoleEvent) {
+function handleConsole(message: ConsoleEvent) {
     console[message.type](...message.args)
 }

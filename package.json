@@ -11,6 +11,9 @@
     "build": "run-s clean compile",
     "clean": "rimraf dist coverage",
     "compile": "tsc",
+    "example:lit": "cd examples/lit-hydrate && npm install && tsx example.ts",
+    "example:script": "./bin/bx examples/consoleLog.js --browserName chrome",
+    "example:html": "./bin/bx examples/consoleLog.html --browserName chrome",
     "test": "vitest --run",
     "watch": "tsc -w"
   },
@@ -34,6 +37,7 @@
     "npm-run-all": "^4.1.5",
     "rimraf": "^5.0.5",
     "tinybench": "^2.6.0",
+    "tsx": "^4.7.1",
     "typescript": "^5.3.3",
     "vitest": "^1.2.2"
   },
