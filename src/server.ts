@@ -89,13 +89,7 @@ async function instrument(target: Target, onConnect: (value: ViteDevServer) => v
                     ? path.extname(target) === '.html'
                         ? await fs.readFile(target, 'utf-8')
                         : `<script type="module" src="/@fs${path.resolve(process.cwd(), target)}"></script>`
-                    : `<script type="module">
-                        import * as target from '${virtualModuleId}';
-                        import.meta.hot?.send('bx:event', {
-                            name: 'doneEvent',
-                            result: target.default
-                        })
-                    </script>`
+                    : target
                 const template = `
                     <!DOCTYPE html>
                     <html>

@@ -48,7 +48,8 @@ export async function initBrowserSession (params: RunnerArgs) {
         logLevel: 'error',
         capabilities: Object.assign({
             browserName: args.browserName,
-            browserVersion: args.browserVersion
+            browserVersion: args.browserVersion,
+            webSocketUrl: true
         }, getHeadlessArgs(args))
     })
 }

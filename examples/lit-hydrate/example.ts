@@ -1,13 +1,25 @@
 import path from 'node:path'
 import Koa from 'koa'
 
-import { run } from '../../dist/index.js'
+import { run, render } from '../../dist/index.js'
 
 const __dirname = path.dirname(new URL(import.meta.url).pathname)
 const app = new Koa()
 
 app.use(async (ctx) => {
     if (ctx.path === '/favicon.ico') {
+        return
+    }
+
+    if (ctx.path === '/render') {
+        ctx.body = await render(/*html*/`
+            <script type="module" src="/component.ts"></script>
+            <simple-greeting></simple-greeting>
+        `, {
+            headless: false,
+            browserName: 'chrome',
+            rootDir: __dirname
+        })
         return
     }
 
