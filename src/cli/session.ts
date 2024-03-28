@@ -6,6 +6,7 @@ import { cmdArgs as runCmdArgs } from './run.js'
 import { CLI_EPILOGUE } from '../constants.js'
 import { initBrowserSession } from '../utils.js'
 import { deleteSession, deleteAllSessions, listSessions, saveSession } from '../session.js'
+import { RunnerArgs } from 'types.js'
 
 export const command = 'session [options]'
 export const desc = 'Manage `bx` sessions.'
@@ -79,10 +80,14 @@ export const handler = async () => {
         sessionName = `${browserName}-${browserNameSessions.length}`
     }
 
-    const headless = Boolean(params.headless)
-    const rootDir = params.rootDir || process.cwd()
-    const browser = await initBrowserSession({ ...params, rootDir, headless, browserName })
-    await saveSession(browser, sessionName)
+    await createSession(sessionName, { ...params, browserName })
     console.log(`Session "${sessionName}" started, you can now run scripts faster e.g. \`npx bx ./script.js --sessionName ${sessionName}\``)
     process.exit(0)
+}
+
+export async function createSession (sessionName: string, params: RunnerArgs) {
+    const headless = Boolean(params.headless)
+    const rootDir = params.rootDir || process.cwd()
+    const browser = await initBrowserSession({ ...params, rootDir, headless })
+    await saveSession(browser, sessionName)
 }
