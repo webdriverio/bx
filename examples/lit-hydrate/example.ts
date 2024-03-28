@@ -11,6 +11,9 @@ app.use(async (ctx) => {
         return
     }
 
+    /**
+     * Example of server side rendering without using an SSR helper
+     */
     if (ctx.path === '/render') {
         ctx.body = await render(/*html*/`
             <script type="module" src="/component.ts"></script>
@@ -23,6 +26,9 @@ app.use(async (ctx) => {
         return
     }
 
+    /**
+     * Example of server side rendering using an SSR helper
+     */
     ctx.body = await run(async () => {
         const { render } = await import('@lit-labs/ssr');
         const { html } = await import('lit');

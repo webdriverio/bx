@@ -1,3 +1,4 @@
+import UAParser from 'ua-parser-js'
 import { LitElement, css, html } from 'lit';
 
 export class SimpleGreeting extends LitElement {
@@ -16,8 +17,10 @@ export class SimpleGreeting extends LitElement {
 
     constructor() {
         super();
+        const ua = new UAParser(navigator.userAgent);
+
         // Declare reactive properties
-        this.name = 'World';
+        this.name = ua.getBrowser().name || 'World';
     }
 
     // Render the UI as a function of component state
