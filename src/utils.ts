@@ -29,7 +29,8 @@ export function getHeadlessArgs ({ browserName, headless }: Pick<RunnerArgs, 'br
         }
     }
 
-    throw new Error(`Given browser "${browserName}" doesn't support headless mode.`)
+    console.log(`Given browser "${browserName}" doesn't support headless mode.`)
+    return {}
 }
 
 export function parseFileName (filename: string) {
@@ -44,13 +45,21 @@ export function parseFileName (filename: string) {
 
 export async function initBrowserSession (params: RunnerArgs) {
     const args = parseRunArgs(params)
+    const capabilities: WebdriverIO.Capabilities = Object.assign({
+        browserName: args.browserName,
+        browserVersion: args.browserVersion
+    }, getHeadlessArgs(args))
+
+    /**
+     * Safari currently doesn't support Bidi
+     */
+    if (args.browserName !== 'safari') {
+        capabilities.webSocketUrl = true
+    }
+
     return remote({
         logLevel: 'error',
-        capabilities: Object.assign({
-            browserName: args.browserName,
-            browserVersion: args.browserVersion,
-            webSocketUrl: true
-        }, getHeadlessArgs(args))
+        capabilities
     })
 }
 
