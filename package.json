@@ -3,6 +3,7 @@
   "version": "0.5.2",
   "description": "Command line tool to run JavaScript, TypeScript or HTML files in the browser.",
   "exports": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "type": "module",
   "bin": {
     "bx": "./bin/bx"
