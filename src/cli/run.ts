@@ -9,6 +9,7 @@ import type { RunnerArgs, Target } from '../types.js'
 
 export const command = '<target> [options]'
 export const desc = 'Run script, html file or URL.'
+export const aliases = ['run']
 export const cmdArgs = {
     browserName: {
         type: 'string',
