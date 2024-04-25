@@ -1,15 +1,17 @@
 import path from 'node:path'
 import Koa from 'koa'
 
-import { run, render, type RunnerArgs } from '../../dist/index.js'
+import { run, render, type RunnerArgs, createSession } from '../../dist/index.js'
 
 const __dirname = path.dirname(new URL(import.meta.url).pathname)
 const app = new Koa()
 
 app.use(async (ctx) => {
     const browserName = ctx.query.browserName || 'chrome'
+    const browserVersion = ctx.query.browserVersion || 'canary'
     const sessionName = ctx.query.sessionName
-    const runParams: RunnerArgs = { browserName, rootDir: __dirname }
+    const runParams: RunnerArgs = { browserName, browserVersion, rootDir: __dirname }
+
     if (sessionName) {
         runParams.sessionName = sessionName
     }

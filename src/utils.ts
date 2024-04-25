@@ -47,7 +47,8 @@ export async function initBrowserSession (params: RunnerArgs) {
     const args = parseRunArgs(params)
     const capabilities: WebdriverIO.Capabilities = Object.assign({
         browserName: args.browserName,
-        browserVersion: args.browserVersion
+        browserVersion: args.browserVersion,
+        webSocketUrl: true
     }, getHeadlessArgs(args))
 
     /**

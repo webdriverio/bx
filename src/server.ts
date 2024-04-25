@@ -53,18 +53,24 @@ async function instrument(target: Target, onConnect: (value: ViteDevServer) => v
     return {
         name: 'instrument',
         enforce: 'pre',
-        resolveId(id) {
-            if (id === virtualModuleId) {
-                return resolvedVirtualModuleId
-            }
-            return null
-        },
         load(id) {
             if (typeof target === 'string' && id === resolvedVirtualModuleId) {
                 return target
             }
-            if (typeof target === 'function' && id === resolvedVirtualModuleId) {
-                return `export default await (${target.toString()})()`
+            if (typeof target === 'function' && id === '/inline.js') {
+                return `
+                    let result = undefined
+                    try {
+                        result = await (${target.toString()})()
+                    } finally {
+                        requestAnimationFrame(() => (
+                            import.meta.hot?.send(
+                                'bx:event',
+                                { name: 'doneEvent', result }
+                            )
+                        ))
+                    }
+                `
             }
             return null
         },
@@ -89,7 +95,9 @@ async function instrument(target: Target, onConnect: (value: ViteDevServer) => v
                     ? path.extname(target) === '.html'
                         ? await fs.readFile(target, 'utf-8')
                         : `<script type="module" src="/@fs${path.resolve(process.cwd(), target)}"></script>`
-                    : target
+                    : typeof target === 'function'
+                        ? `<script type="module" src="/inline.js"></script>`
+                        : target
                 const template = `
                     <!DOCTYPE html>
                     <html>
