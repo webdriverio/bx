@@ -13,8 +13,8 @@
     "clean": "rimraf dist coverage",
     "compile": "tsc",
     "example:ssr": "cd ./examples/lit-ssr && npm install && tsx example.ts",
-    "example:script": "./bin/bx ./examples/consoleLog.js --browserName chrome",
-    "example:html": "./bin/bx ./examples/consoleLog.html --browserName chrome",
+    "example:script": "./bin/bx ./examples/consoleLog.js",
+    "example:html": "./bin/bx ./examples/consoleLog.html",
     "example:benchmark": "tsx ./examples/benchmark.test.ts",
     "test": "vitest --run",
     "watch": "tsc -w"
