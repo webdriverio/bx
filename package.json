@@ -45,7 +45,7 @@
   },
   "dependencies": {
     "vite": "^5.2.3",
-    "webdriverio": "^8.35.1",
+    "webdriverio": "^9.0.4",
     "yargs": "^17.7.2"
   }
 }
