@@ -44,7 +44,7 @@
     "vitest": "^2.0.0"
   },
   "dependencies": {
-    "vite": "^5.2.3",
+    "vite": "^6.0.2",
     "webdriverio": "^9.0.4",
     "yargs": "^17.7.2"
   }
