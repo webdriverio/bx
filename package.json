@@ -33,7 +33,7 @@
   },
   "homepage": "https://github.com/webdriverio/bx#readme",
   "devDependencies": {
-    "@types/node": "^22.0.0",
+    "@types/node": "^24.0.3",
     "@types/yargs": "^17.0.32",
     "@vitest/coverage-v8": "^2.0.0",
     "npm-run-all2": "^8.0.1",
