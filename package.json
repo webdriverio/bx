@@ -41,7 +41,7 @@
     "tinybench": "^5.0.1",
     "tsx": "^4.7.1",
     "typescript": "^5.4.3",
-    "vitest": "^2.0.0"
+    "vitest": "^4.0.8"
   },
   "dependencies": {
     "vite": "^7.0.0",
